@@ -137,7 +137,7 @@ public class LoggerConfigurator extends ContextAwareBase implements Configurator
         gelfAppender.setHost(CONFIG.getMandatoryString(GELF_HOST));
         gelfAppender.setPort(CONFIG.getMandatoryInt(GELF_PORT));
         gelfAppender.setCompressedChunking(true);
-        gelfAppender.setDefaultFields("{\"environment\": \"" + CONFIG.getString("application") + "\", \"cluster\": \"unknown\", \"facility\": \"unknown\", \"application\": \"" + CONFIG.getString("application") + "\"}");
+        gelfAppender.setDefaultFields("{\"environment\": \"" + CONFIG.getString("environment") + "\", \"cluster\": \"" + CONFIG.getString("cluster") + "\", \"facility\": \"" + CONFIG.getString("facility") + "\", \"application\": \"" + CONFIG.getString("application") + "\"}");
         gelfAppender.setAdditionalFields("{\"level\": \"level\", \"logger\": \"loggerName\", \"thread_name\": \"threadName\", \"exception\": \"exception\", \"time_stamp\": \"timestampMs\"}");
         gelfAppender.setName(APPENDER_GELF);
         gelfAppender.setContext(loggerContext);
