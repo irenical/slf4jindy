@@ -23,3 +23,21 @@ Add SLF4Jindy dependency to your project
 ```
 
 You can learn more about Jindy at https://github.com/irenical/jindy
+
+SLF4Jindy will try to read the following properties. The values bellow are the default ones.
+```properties
+log.level=DEBUG
+
+log.console.enabled=true
+log.console.pattern=%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
+
+log.file.enabled=false
+log.file.pattern=%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
+log.file.backupdatepattern=%d{yyyy-MM-dd}
+log.file.path=./log/
+log.file.maxbackups=5
+
+log.gelf.enabled=false
+log.gelf.host=
+log.gelf.port=
+```
