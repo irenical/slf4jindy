@@ -29,7 +29,6 @@ public class LoggerConfigurator extends ContextAwareBase implements Configurator
 
   private static final String FILE_ENABLED = "log.file.enabled";
   private static final String FILE_PATTERN = "log.file.pattern";
-  private static final String FILE_MAXSIZE = "log.file.maxsize";
   private static final String FILE_BACKUP_DATE_PATTERN = "log.file.backupdatepattern";
   private static final String FILE_PATH = "log.file.path";
   private static final String FILE_MAXBACKUPS = "log.file.maxbackups";
@@ -47,9 +46,9 @@ public class LoggerConfigurator extends ContextAwareBase implements Configurator
 
   private static final String SEP = "-";
 
-  private static final Config CONFIG = ConfigFactory.getConfig();
-
   private static volatile boolean started = false;
+  
+  private final Config CONFIG = ConfigFactory.getConfig();
 
   public LoggerConfigurator() {
   }
@@ -66,7 +65,6 @@ public class LoggerConfigurator extends ContextAwareBase implements Configurator
       CONFIG.listen(FILE_ENABLED, this::updateFile);
       CONFIG.listen(FILE_PATTERN, this::updateFile);
       CONFIG.listen(FILE_MAXBACKUPS, this::updateFile);
-      CONFIG.listen(FILE_MAXSIZE, this::updateFile);
       CONFIG.listen(FILE_PATH, this::updateFile);
       CONFIG.listen(FILE_BACKUP_DATE_PATTERN, this::updateFile);
       started = true;
