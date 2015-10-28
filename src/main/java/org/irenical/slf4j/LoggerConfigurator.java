@@ -1,9 +1,11 @@
 package org.irenical.slf4j;
 
+import ch.qos.logback.classic.jul.LevelChangePropagator;
 import gelf4j.logback.GelfAppender;
 
 import org.irenical.jindy.Config;
 import org.irenical.jindy.ConfigFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -70,10 +72,25 @@ public class LoggerConfigurator extends ContextAwareBase implements Configurator
       started = true;
     }
     loggerContext.reset();
+    installJulBridge();
     updateLevel();
     updateConsole();
     updateFile();
     updateGelf();
+  }
+
+  private void installJulBridge() {
+    LoggerContext loggerContext = (LoggerContext) getContext();
+
+    if(!SLF4JBridgeHandler.isInstalled()) {
+      SLF4JBridgeHandler.removeHandlersForRootLogger();
+      SLF4JBridgeHandler.install();
+    }
+
+    LevelChangePropagator julLevelChanger = new LevelChangePropagator();
+    julLevelChanger.setContext(loggerContext);
+    julLevelChanger.setResetJUL(true);
+    loggerContext.addListener(julLevelChanger);
   }
 
   private void updateFile() {
@@ -85,7 +102,7 @@ public class LoggerConfigurator extends ContextAwareBase implements Configurator
       if (CONFIG.getBoolean(FILE_ENABLED, false)) {
         logbackLogger.detachAppender(fileAppender);
 
-        fileAppender = new RollingFileAppender<ILoggingEvent>();
+        fileAppender = new RollingFileAppender<>();
         fileAppender.setName(APPENDER_FILE);
         fileAppender.setContext(loggerContext);
 
@@ -96,7 +113,7 @@ public class LoggerConfigurator extends ContextAwareBase implements Configurator
 
         fileAppender.setFile(file + CONFIG.getString("application") + EXT);
 
-        TimeBasedRollingPolicy<ILoggingEvent> rollPolicy = new TimeBasedRollingPolicy<ILoggingEvent>();
+        TimeBasedRollingPolicy<ILoggingEvent> rollPolicy = new TimeBasedRollingPolicy<>();
         rollPolicy.setContext(loggerContext);
         rollPolicy.setFileNamePattern(file + CONFIG.getString("application") + SEP + CONFIG.getString(FILE_BACKUP_DATE_PATTERN, DEFAULT_BACKUP_DATE_PATERN) + EXT);
         rollPolicy.setMaxHistory(CONFIG.getInt(FILE_MAXBACKUPS, DEFAULT_FILE_MAXBACKUPS));
@@ -157,7 +174,7 @@ public class LoggerConfigurator extends ContextAwareBase implements Configurator
     if (CONFIG.getBoolean(CONSOLE_ENABLED, true)) {
       logbackLogger.detachAppender(consoleAppender);
 
-      consoleAppender = new ConsoleAppender<ILoggingEvent>();
+      consoleAppender = new ConsoleAppender<>();
       consoleAppender.setContext(loggerContext);
       consoleAppender.setName(APPENDER_CONSOLE);
 
