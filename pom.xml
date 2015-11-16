@@ -49,11 +49,6 @@
       <version>${jindy.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.realityforge.gelf4j</groupId>
-      <artifactId>gelf4j</artifactId>
-      <version>${gelf4j.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>${slf4j.version}</version>
@@ -72,6 +67,12 @@
       <groupId>org.slf4j</groupId>
       <artifactId>log4j-over-slf4j</artifactId>
       <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.realityforge.gelf4j</groupId>
+      <artifactId>gelf4j</artifactId>
+      <version>${gelf4j.version}</version>
+      <optional>true</optional>
     </dependency>
   </dependencies>
 

@@ -1,7 +1,7 @@
 package org.irenical.slf4j;
 
 import ch.qos.logback.classic.jul.LevelChangePropagator;
-import gelf4j.logback.GelfAppender;
+import ch.qos.logback.core.Appender;
 
 import org.irenical.jindy.Config;
 import org.irenical.jindy.ConfigFactory;
@@ -144,11 +144,10 @@ public class LoggerConfigurator extends ContextAwareBase implements Configurator
       LoggerContext loggerContext = (LoggerContext) getContext();
       Logger logbackLogger = loggerContext.getLogger(Logger.ROOT_LOGGER_NAME);
 
-      GelfAppender<ILoggingEvent> gelfAppender = (GelfAppender<ILoggingEvent>) logbackLogger.getAppender(APPENDER_GELF);
+      Appender<ILoggingEvent> appender = logbackLogger.getAppender(APPENDER_GELF);
 
-      if (CONFIG.getBoolean(GELF_ENABLED, false)) {
-        logbackLogger.detachAppender(gelfAppender);
-        gelfAppender = new GelfAppender<>();
+      if (CONFIG.getBoolean(GELF_ENABLED, false) && isClassPresent("gelf4j.logback.GelfAppender")) {
+        gelf4j.logback.GelfAppender<ILoggingEvent> gelfAppender = new gelf4j.logback.GelfAppender<>();
         gelfAppender.setHost(CONFIG.getMandatoryString(GELF_HOST));
         gelfAppender.setPort(CONFIG.getMandatoryInt(GELF_PORT));
         gelfAppender.setCompressedChunking(true);
@@ -159,7 +158,7 @@ public class LoggerConfigurator extends ContextAwareBase implements Configurator
         gelfAppender.start();
         logbackLogger.addAppender(gelfAppender);
       } else {
-        logbackLogger.detachAppender(gelfAppender);
+        logbackLogger.detachAppender(appender);
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -219,4 +218,12 @@ public class LoggerConfigurator extends ContextAwareBase implements Configurator
     }
   }
 
+  public static boolean isClassPresent(String className) {
+    try {
+      Class.forName(className);
+      return true;
+    } catch (LinkageError|ClassNotFoundException ex) {
+      return false;
+    }
+  }
 }
