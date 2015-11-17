@@ -36,8 +36,4 @@ log.file.pattern=%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
 log.file.backupdatepattern=%d{yyyy-MM-dd}
 log.file.path=./log/
 log.file.maxbackups=5
-
-log.gelf.enabled=false
-log.gelf.host=
-log.gelf.port=
 ```
