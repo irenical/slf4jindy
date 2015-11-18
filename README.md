@@ -9,7 +9,7 @@ Add SLF4Jindy dependency to your project
 <dependency>
     <groupId>org.irenical.slf4j</groupId>
     <artifactId>slf4jindy</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
@@ -18,7 +18,7 @@ Add SLF4Jindy dependency to your project
 <dependency>
     <groupId>org.irenical.jindy</groupId>
     <artifactId>jindy-commons-impl</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.4</version>
 </dependency>
 ```
 
@@ -36,8 +36,4 @@ log.file.pattern=%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
 log.file.backupdatepattern=%d{yyyy-MM-dd}
 log.file.path=./log/
 log.file.maxbackups=5
-
-log.gelf.enabled=false
-log.gelf.host=
-log.gelf.port=
 ```
