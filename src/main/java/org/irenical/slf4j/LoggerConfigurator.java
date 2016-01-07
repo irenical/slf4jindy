@@ -1,9 +1,5 @@
 package org.irenical.slf4j;
 
-import org.irenical.jindy.Config;
-import org.irenical.jindy.ConfigFactory;
-import org.slf4j.bridge.SLF4JBridgeHandler;
-
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
@@ -12,11 +8,16 @@ import ch.qos.logback.classic.jul.LevelChangePropagator;
 import ch.qos.logback.classic.spi.Configurator;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.ConsoleAppender;
+import ch.qos.logback.core.joran.GenericConfigurator;
+import ch.qos.logback.core.joran.spi.Interpreter;
+import ch.qos.logback.core.joran.spi.RuleStore;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
-import ch.qos.logback.core.spi.ContextAwareBase;
+import org.irenical.jindy.Config;
+import org.irenical.jindy.ConfigFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
-public class LoggerConfigurator extends ContextAwareBase implements Configurator {
+public class LoggerConfigurator extends GenericConfigurator implements Configurator {
 
   private static final String APPENDER_CONSOLE = "CONSOLE";
   private static final String APPENDER_FILE = "FILE";
@@ -47,7 +48,17 @@ public class LoggerConfigurator extends ContextAwareBase implements Configurator
 
   public LoggerConfigurator() {
   }
-  
+
+  @Override
+  protected void addInstanceRules(RuleStore rs) {
+
+  }
+
+  @Override
+  protected void addImplicitRules(Interpreter interpreter) {
+
+  }
+
   protected void initListeners(){
     CONFIG.listen(LEVEL, this::updateLevel);
     CONFIG.listen(CONSOLE_ENABLED, this::updateConsole);
@@ -83,6 +94,7 @@ public class LoggerConfigurator extends ContextAwareBase implements Configurator
     LevelChangePropagator julLevelChanger = new LevelChangePropagator();
     julLevelChanger.setContext(loggerContext);
     julLevelChanger.setResetJUL(true);
+    julLevelChanger.start();
     loggerContext.addListener(julLevelChanger);
   }
 
