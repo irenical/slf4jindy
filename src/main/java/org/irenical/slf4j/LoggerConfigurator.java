@@ -38,12 +38,14 @@ public class LoggerConfigurator extends GenericConfigurator implements Configura
   private static final int DEFAULT_FILE_MAXBACKUPS = 5;
   private static final String DEFAULT_BACKUP_DATE_PATERN = "%d{yyyy-MM-dd}";
 
+  private static final String LOGGING_LEVEL_CHANGE_PROPAGATOR_ENABLED = "logging.levelchangepropagator.enabled";
+
   private static final String EXT = ".log";
 
   private static final String SEP = "-";
 
   private static volatile boolean started = false;
-  
+
   private final Config CONFIG = ConfigFactory.getConfig();
 
   public LoggerConfigurator() {
@@ -59,7 +61,7 @@ public class LoggerConfigurator extends GenericConfigurator implements Configura
 
   }
 
-  protected void initListeners(){
+  protected void initListeners() {
     CONFIG.listen(LEVEL, this::updateLevel);
     CONFIG.listen(CONSOLE_ENABLED, this::updateConsole);
     CONFIG.listen(CONSOLE_PATTERN, this::updateConsole);
@@ -86,16 +88,18 @@ public class LoggerConfigurator extends GenericConfigurator implements Configura
   private void installJulBridge() {
     LoggerContext loggerContext = (LoggerContext) getContext();
 
-    if(!SLF4JBridgeHandler.isInstalled()) {
+    if (!SLF4JBridgeHandler.isInstalled()) {
       SLF4JBridgeHandler.removeHandlersForRootLogger();
       SLF4JBridgeHandler.install();
     }
-
-    LevelChangePropagator julLevelChanger = new LevelChangePropagator();
-    julLevelChanger.setContext(loggerContext);
-    julLevelChanger.setResetJUL(true);
-    julLevelChanger.start();
-    loggerContext.addListener(julLevelChanger);
+    String got = System.getProperty(LOGGING_LEVEL_CHANGE_PROPAGATOR_ENABLED);
+    if (got == null || got.equalsIgnoreCase("true")) {
+      LevelChangePropagator julLevelChanger = new LevelChangePropagator();
+      julLevelChanger.setContext(loggerContext);
+      julLevelChanger.setResetJUL(true);
+      julLevelChanger.start();
+      loggerContext.addListener(julLevelChanger);
+    }
   }
 
   private void updateFile() {
