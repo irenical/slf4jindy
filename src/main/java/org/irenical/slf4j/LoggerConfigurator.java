@@ -73,6 +73,7 @@ public class LoggerConfigurator extends GenericConfigurator implements Configura
   @Override
   public void configure(LoggerContext loggerContext) {
     if (!started) {
+      setContext(loggerContext);
       initListeners();
       started = true;
     }
@@ -84,6 +85,14 @@ public class LoggerConfigurator extends GenericConfigurator implements Configura
   }
 
   private void installJulBridge() {
+    // Workaround for strange ClassCircularityErrors in the JUL bridge when very strange classloader hierarchies are
+    // set up and logging occurs from inside classloaders themselves (eg: some strange Tomcat deployments)
+    try {
+      Class.forName("java.util.logging.LogRecord");
+    } catch (ClassNotFoundException e) {
+      throw new AssertionError(e);
+    }
+
     LoggerContext loggerContext = (LoggerContext) getContext();
 
     if (!SLF4JBridgeHandler.isInstalled()) {
