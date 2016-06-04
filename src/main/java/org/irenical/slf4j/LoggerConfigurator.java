@@ -38,15 +38,13 @@ public class LoggerConfigurator extends GenericConfigurator implements Configura
   private static final int DEFAULT_FILE_MAXBACKUPS = 5;
   private static final String DEFAULT_BACKUP_DATE_PATERN = "%d{yyyy-MM-dd}";
 
-  private static final String LOGGING_LEVEL_CHANGE_PROPAGATOR_ENABLED = "logging.levelchangepropagator.enabled";
-
   private static final String EXT = ".log";
 
   private static final String SEP = "-";
 
   private static volatile boolean started = false;
 
-  private final Config CONFIG = ConfigFactory.getConfig();
+  private final Config config = ConfigFactory.getConfig();
 
   public LoggerConfigurator() {
   }
@@ -62,19 +60,20 @@ public class LoggerConfigurator extends GenericConfigurator implements Configura
   }
 
   protected void initListeners() {
-    CONFIG.listen(LEVEL, this::updateLevel);
-    CONFIG.listen(CONSOLE_ENABLED, this::updateConsole);
-    CONFIG.listen(CONSOLE_PATTERN, this::updateConsole);
-    CONFIG.listen(FILE_ENABLED, this::updateFile);
-    CONFIG.listen(FILE_PATTERN, this::updateFile);
-    CONFIG.listen(FILE_MAXBACKUPS, this::updateFile);
-    CONFIG.listen(FILE_PATH, this::updateFile);
-    CONFIG.listen(FILE_BACKUP_DATE_PATTERN, this::updateFile);
+    config.listen(LEVEL, this::updateLevel);
+    config.listen(CONSOLE_ENABLED, this::updateConsole);
+    config.listen(CONSOLE_PATTERN, this::updateConsole);
+    config.listen(FILE_ENABLED, this::updateFile);
+    config.listen(FILE_PATTERN, this::updateFile);
+    config.listen(FILE_MAXBACKUPS, this::updateFile);
+    config.listen(FILE_PATH, this::updateFile);
+    config.listen(FILE_BACKUP_DATE_PATTERN, this::updateFile);
   }
 
   @Override
   public void configure(LoggerContext loggerContext) {
     if (!started) {
+      setContext(loggerContext);
       initListeners();
       started = true;
     }
@@ -86,20 +85,25 @@ public class LoggerConfigurator extends GenericConfigurator implements Configura
   }
 
   private void installJulBridge() {
+    // Workaround for strange ClassCircularityErrors in the JUL bridge when very strange classloader hierarchies are
+    // set up and logging occurs from inside classloaders themselves (eg: some strange Tomcat deployments)
+    try {
+      Class.forName("java.util.logging.LogRecord");
+    } catch (ClassNotFoundException e) {
+      throw new AssertionError(e);
+    }
+
     LoggerContext loggerContext = (LoggerContext) getContext();
 
     if (!SLF4JBridgeHandler.isInstalled()) {
       SLF4JBridgeHandler.removeHandlersForRootLogger();
       SLF4JBridgeHandler.install();
     }
-    String got = System.getProperty(LOGGING_LEVEL_CHANGE_PROPAGATOR_ENABLED);
-    if (got == null || got.equalsIgnoreCase("true")) {
-      LevelChangePropagator julLevelChanger = new LevelChangePropagator();
-      julLevelChanger.setContext(loggerContext);
-      julLevelChanger.setResetJUL(true);
-      julLevelChanger.start();
-      loggerContext.addListener(julLevelChanger);
-    }
+    LevelChangePropagator julLevelChanger = new LevelChangePropagator();
+    julLevelChanger.setContext(loggerContext);
+    julLevelChanger.setResetJUL(true);
+    julLevelChanger.start();
+    loggerContext.addListener(julLevelChanger);
   }
 
   private void updateFile() {
@@ -108,31 +112,31 @@ public class LoggerConfigurator extends GenericConfigurator implements Configura
       Logger logbackLogger = loggerContext.getLogger(Logger.ROOT_LOGGER_NAME);
 
       RollingFileAppender<ILoggingEvent> fileAppender = (RollingFileAppender<ILoggingEvent>) logbackLogger.getAppender(APPENDER_FILE);
-      if (CONFIG.getBoolean(FILE_ENABLED, false)) {
+      if (config.getBoolean(FILE_ENABLED, false)) {
         logbackLogger.detachAppender(fileAppender);
 
         fileAppender = new RollingFileAppender<>();
         fileAppender.setName(APPENDER_FILE);
         fileAppender.setContext(loggerContext);
 
-        String file = CONFIG.getString(FILE_PATH, DEFAULT_FILE_PATH);
+        String file = config.getString(FILE_PATH, DEFAULT_FILE_PATH);
         if (!file.endsWith("/")) {
           file += "/";
         }
 
-        fileAppender.setFile(file + CONFIG.getString("application") + EXT);
+        fileAppender.setFile(file + config.getString("application") + EXT);
 
         TimeBasedRollingPolicy<ILoggingEvent> rollPolicy = new TimeBasedRollingPolicy<>();
         rollPolicy.setContext(loggerContext);
-        rollPolicy.setFileNamePattern(file + CONFIG.getString("application") + SEP + CONFIG.getString(FILE_BACKUP_DATE_PATTERN, DEFAULT_BACKUP_DATE_PATERN) + EXT);
-        rollPolicy.setMaxHistory(CONFIG.getInt(FILE_MAXBACKUPS, DEFAULT_FILE_MAXBACKUPS));
+        rollPolicy.setFileNamePattern(file + config.getString("application") + SEP + config.getString(FILE_BACKUP_DATE_PATTERN, DEFAULT_BACKUP_DATE_PATERN) + EXT);
+        rollPolicy.setMaxHistory(config.getInt(FILE_MAXBACKUPS, DEFAULT_FILE_MAXBACKUPS));
         rollPolicy.setParent(fileAppender);
         fileAppender.setRollingPolicy(rollPolicy);
         fileAppender.setTriggeringPolicy(rollPolicy);
 
         PatternLayoutEncoder encoder = new PatternLayoutEncoder();
         encoder.setContext(loggerContext);
-        encoder.setPattern(CONFIG.getString(FILE_PATTERN, DEFAULT_PATTERN));
+        encoder.setPattern(config.getString(FILE_PATTERN, DEFAULT_PATTERN));
         fileAppender.setEncoder(encoder);
 
         logbackLogger.addAppender(fileAppender);
@@ -153,7 +157,7 @@ public class LoggerConfigurator extends GenericConfigurator implements Configura
     Logger logbackLogger = loggerContext.getLogger(Logger.ROOT_LOGGER_NAME);
 
     ConsoleAppender<ILoggingEvent> consoleAppender = (ConsoleAppender<ILoggingEvent>) logbackLogger.getAppender(APPENDER_CONSOLE);
-    if (CONFIG.getBoolean(CONSOLE_ENABLED, true)) {
+    if (config.getBoolean(CONSOLE_ENABLED, true)) {
       logbackLogger.detachAppender(consoleAppender);
 
       consoleAppender = new ConsoleAppender<>();
@@ -162,7 +166,7 @@ public class LoggerConfigurator extends GenericConfigurator implements Configura
 
       PatternLayoutEncoder encoder = new PatternLayoutEncoder();
       encoder.setContext(loggerContext);
-      encoder.setPattern(CONFIG.getString(CONSOLE_PATTERN, DEFAULT_PATTERN));
+      encoder.setPattern(config.getString(CONSOLE_PATTERN, DEFAULT_PATTERN));
       consoleAppender.setEncoder(encoder);
       encoder.start();
       consoleAppender.start();
@@ -176,7 +180,7 @@ public class LoggerConfigurator extends GenericConfigurator implements Configura
   private void updateLevel() {
     LoggerContext loggerContext = (LoggerContext) getContext();
     Logger logbackLogger = loggerContext.getLogger(Logger.ROOT_LOGGER_NAME);
-    String level = CONFIG.getString(LEVEL, "DEBUG");
+    String level = config.getString(LEVEL, "DEBUG");
     switch (level) {
     case "ERROR":
       logbackLogger.setLevel(Level.ERROR);
