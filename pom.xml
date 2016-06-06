@@ -10,7 +10,7 @@
 
   <groupId>org.irenical.slf4j</groupId>
   <artifactId>slf4jindy</artifactId>
-  <version>1.3.0</version>
+  <version>1.3.1-SNAPSHOT</version>
 
   <name>SLF4Jindy</name>
   <description>SLF4J Binding</description>
