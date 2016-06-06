@@ -20,7 +20,7 @@
   <properties>
     <slf4j.version>1.7.21</slf4j.version>
     <logback.version>1.1.7</logback.version>
-    <jindy.version>1.5.0</jindy.version>
+    <jindy.version>2.1.0</jindy.version>
   </properties>
 
   <scm>
@@ -66,6 +66,12 @@
       <groupId>org.slf4j</groupId>
       <artifactId>log4j-over-slf4j</artifactId>
       <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.irenical.jindy</groupId>
+      <artifactId>jindy-archaius-consul</artifactId>
+      <version>2.1.1</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
