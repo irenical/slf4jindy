@@ -11,7 +11,7 @@ Add SLF4Jindy dependency to your project
 <dependency>
     <groupId>org.irenical.slf4j</groupId>
     <artifactId>slf4jindy</artifactId>
-    <version>1.1.0</version>
+    <version>1.3.0</version>
 </dependency>
 ```
 
@@ -19,8 +19,8 @@ Add SLF4Jindy dependency to your project
 ```xml
 <dependency>
     <groupId>org.irenical.jindy</groupId>
-    <artifactId>jindy-commons-impl</artifactId>
-    <version>1.1.4</version>
+    <artifactId>jindy-archaius-consul</artifactId>
+    <version>2.1.1</version>
 </dependency>
 ```
 
