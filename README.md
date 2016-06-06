@@ -28,8 +28,7 @@ You can learn more about Jindy at https://github.com/irenical/jindy
 
 SLF4Jindy will try to read the following properties. The values bellow are the default ones.
 ```properties
-log.level=INFO
-log.level.com.company.packagename=DEBUG
+log.level=DEBUG
 
 log.console.enabled=true
 log.console.pattern=%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
@@ -40,6 +39,13 @@ log.file.backupdatepattern=%d{yyyy-MM-dd}
 log.file.path=./log/
 log.file.maxbackups=5
 ```
+
+Logging level per package can be achieved by suffixing the "log.level" property with the package name.
+```properties
+log.level.com.company.mypackage=DEBUG
+log.level.com.company.some.nagging.package=ERROR
+```
+
 [maven]:http://search.maven.org/#search|gav|1|g:"org.irenical.slf4j"%20AND%20a:"slf4jindy"
 [maven img]:https://maven-badges.herokuapp.com/maven-central/org.irenical.slf4j/slf4jindy/badge.svg
 
