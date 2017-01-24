@@ -15,6 +15,7 @@ import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
 import org.irenical.jindy.Config;
 import org.irenical.jindy.Config.Match;
+import org.irenical.jindy.ConfigContext;
 import org.irenical.jindy.ConfigFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
@@ -30,6 +31,7 @@ public class LoggerConfigurator extends GenericConfigurator implements Configura
 
   private static final String FILE_ENABLED = "log.file.enabled";
   private static final String FILE_PATTERN = "log.file.pattern";
+  private static final String FILE_NAME = "log.file.name";
   private static final String FILE_BACKUP_DATE_PATTERN = "log.file.backupdatepattern";
   private static final String FILE_PATH = "log.file.path";
   private static final String FILE_MAXBACKUPS = "log.file.maxbackups";
@@ -38,6 +40,8 @@ public class LoggerConfigurator extends GenericConfigurator implements Configura
   private static final String DEFAULT_FILE_PATH = "./log/";
   private static final int DEFAULT_FILE_MAXBACKUPS = 5;
   private static final String DEFAULT_BACKUP_DATE_PATERN = "%d{yyyy-MM-dd}";
+
+  private static final String DEFAULT_FILE_NAME = "default";
 
   private static final String EXT = ".log";
 
@@ -128,11 +132,16 @@ public class LoggerConfigurator extends GenericConfigurator implements Configura
           file += "/";
         }
 
-        fileAppender.setFile(file + config.getString("application") + EXT);
+        ConfigContext context = ConfigFactory.getContext();
+        String applicationId = context == null ? null : context.getApplicationId();
+
+        String fileName = config.getString( FILE_NAME, applicationId == null ? DEFAULT_FILE_NAME : applicationId );
+
+        fileAppender.setFile(file + fileName + EXT);
 
         TimeBasedRollingPolicy<ILoggingEvent> rollPolicy = new TimeBasedRollingPolicy<>();
         rollPolicy.setContext(loggerContext);
-        rollPolicy.setFileNamePattern(file + config.getString("application") + SEP
+        rollPolicy.setFileNamePattern(file + fileName + SEP
             + config.getString(FILE_BACKUP_DATE_PATTERN, DEFAULT_BACKUP_DATE_PATERN) + EXT);
         rollPolicy.setMaxHistory(config.getInt(FILE_MAXBACKUPS, DEFAULT_FILE_MAXBACKUPS));
         rollPolicy.setParent(fileAppender);
