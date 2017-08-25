@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -10,7 +9,7 @@
 
   <groupId>org.irenical.slf4j</groupId>
   <artifactId>slf4jindy</artifactId>
-  <version>2.0.0-SNAPSHOT</version>
+  <version>2.0.0</version>
 
   <name>SLF4Jindy</name>
   <description>SLF4J Binding</description>
@@ -27,6 +26,7 @@
     <connection>scm:git:git@github.com:irenical/slf4jindy.git</connection>
     <developerConnection>scm:git:git@github.com:irenical/slf4jindy.git</developerConnection>
     <url>git@github.com:irenical/slf4jindy.git</url>
+    <tag>slf4jindy-2.0.0</tag>
   </scm>
 
   <developers>
