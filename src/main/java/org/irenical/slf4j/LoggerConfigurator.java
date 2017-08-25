@@ -84,9 +84,9 @@ public class LoggerConfigurator extends GenericConfigurator implements Configura
     }
     loggerContext.reset();
     installJulBridge();
-    updateLevel();
-    updateConsole();
-    updateFile();
+    updateLevel(null);
+    updateConsole(null);
+    updateFile(null);
   }
 
   private void installJulBridge() {
@@ -113,7 +113,7 @@ public class LoggerConfigurator extends GenericConfigurator implements Configura
     loggerContext.addListener(julLevelChanger);
   }
 
-  private void updateFile() {
+  private void updateFile(String changedProp) {
     try {
       LoggerContext loggerContext = (LoggerContext) getContext();
       Logger logbackLogger = loggerContext.getLogger(Logger.ROOT_LOGGER_NAME);
@@ -135,14 +135,14 @@ public class LoggerConfigurator extends GenericConfigurator implements Configura
         ConfigContext context = ConfigFactory.getContext();
         String applicationId = context == null ? null : context.getApplicationId();
 
-        String fileName = config.getString( FILE_NAME, applicationId == null ? DEFAULT_FILE_NAME : applicationId );
+        String fileName = config.getString(FILE_NAME, applicationId == null ? DEFAULT_FILE_NAME : applicationId);
 
         fileAppender.setFile(file + fileName + EXT);
 
         TimeBasedRollingPolicy<ILoggingEvent> rollPolicy = new TimeBasedRollingPolicy<>();
         rollPolicy.setContext(loggerContext);
-        rollPolicy.setFileNamePattern(file + fileName + SEP
-            + config.getString(FILE_BACKUP_DATE_PATTERN, DEFAULT_BACKUP_DATE_PATERN) + EXT);
+        rollPolicy.setFileNamePattern(
+            file + fileName + SEP + config.getString(FILE_BACKUP_DATE_PATTERN, DEFAULT_BACKUP_DATE_PATERN) + EXT);
         rollPolicy.setMaxHistory(config.getInt(FILE_MAXBACKUPS, DEFAULT_FILE_MAXBACKUPS));
         rollPolicy.setParent(fileAppender);
         fileAppender.setRollingPolicy(rollPolicy);
@@ -166,7 +166,7 @@ public class LoggerConfigurator extends GenericConfigurator implements Configura
     }
   }
 
-  private void updateConsole() {
+  private void updateConsole(String changedProp) {
     LoggerContext loggerContext = (LoggerContext) getContext();
     Logger logbackLogger = loggerContext.getLogger(Logger.ROOT_LOGGER_NAME);
 
@@ -192,18 +192,18 @@ public class LoggerConfigurator extends GenericConfigurator implements Configura
     }
   }
 
-  private void updateLevel() {
+  private void updateLevel(String changedProp) {
     Iterable<String> keys = config.getKeys(LEVEL);
-    for(String key : keys){
-      if(key.length()>LEVEL.length()+1){
-        String pack = key.substring(LEVEL.length()+1);
-        updateLoggerLevel(pack,config.getString(key));
+    for (String key : keys) {
+      if (key.length() > LEVEL.length() + 1) {
+        String pack = key.substring(LEVEL.length() + 1);
+        updateLoggerLevel(pack, config.getString(key));
       }
     }
     updateLoggerLevel(Logger.ROOT_LOGGER_NAME, config.getString(LEVEL, "DEBUG"));
   }
-  
-  private void updateLoggerLevel(String loggerName, String level){
+
+  private void updateLoggerLevel(String loggerName, String level) {
     LoggerContext loggerContext = (LoggerContext) getContext();
     Logger logbackLogger = loggerContext.getLogger(loggerName);
     switch (level) {
